@@ -1,47 +1,47 @@
-import { Router } from 'express';
-import weatherService from '../../service/weatherService';
-import historyService from '../../service/historyService';
-const router = Router();
+import express from 'express';
+import weatherService from './weatherService'; 
+import HistoryService from './HistoryService'; 
 
-// import HistoryService from '../../service/historyService.js';
-// import WeatherService from '../../service/weatherService.js';
+const router = express.Router();
 
 // TODO: POST Request with city name to retrieve weather data
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { city } = req.body;
-  if(!city) {
-    return res.status(400).json({ error: 'City name is required'});
+  if (!city) {
+    return res.status(400).json({ error: 'City name is required' });
   }
   try {
     // TODO: GET weather data from city name
     const weatherData = await weatherService.getWeatherByCity(city);
     // TODO: save city to search history
-    await historyService.saveCityToHistory(city);
+    await HistoryService.saveCityToHistory(city);
     return res.status(200).json(weatherData);
   } catch (error) {
-    return res.status(500).json({ error: 'An error occured while retrieving weather data'});
+    return res.status(500).json({ error: 'An error occurred while retrieving weather data' });
   }
 });
 
 // TODO: GET search history
 router.get('/history', async (req, res) => {
   try {
-    const history = await historyService.getSearchHistory();
+    const history = await HistoryService.getSearchHistory();
     return res.status(200).json(history);
   } catch (error) {
-    return res.status(500).json({ error: 'An error occured while retrieving search history'});
+    return res.status(500).json({ error: 'An error occurred while retrieving search history' });
   }
 });
 
 // * BONUS TODO: DELETE city from search history
 router.delete('/history/:id', async (req, res) => {
+ // Extract the `id` parameter from the request's URL parameters
   const { id } = req.params;
 
+
   try {
-    await historyService.deleteCityFromHistory(id);
-    return res.status(200).json({ message: 'City has been removed from search history'});
+    await HistoryService.deleteCityFromHistory(id);
+    return res.status(200).json({ message: 'City has been removed from search history' });
   } catch (error) {
-    return res.status(500).json({ error: 'An error has occured while trying to remove city from search history'});
+    return res.status(500).json({ error: 'An error occurred while trying to remove city from search history' });
   }
 });
 
