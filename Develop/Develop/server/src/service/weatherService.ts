@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'; 
-import axios from 'axios'; // Import axios for HTTP requests
+import axios from 'axios'; // Importing axios will help with HTTP
 
 dotenv.config();
 
@@ -32,8 +32,9 @@ class WeatherService {
     this.apiKey = apiKey;
   }
 
+  
   // Create fetchLocationData method
-  async fetchLocationData(query: string): Promise<any> { // A Promise can resolve to any type of value
+async fetchLocationData(query: string): Promise<any> { // A Promise can resolve to any type of value
     try {
       const response = await axios.get(`${this.baseURL}/data/2.5/weather`, {
         params: {
