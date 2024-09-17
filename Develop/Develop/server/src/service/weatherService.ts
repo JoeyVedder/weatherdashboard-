@@ -9,18 +9,20 @@ interface Coordinates {
   lon: number;
 }
 
-// Define a class for the Weather object
-class Weather {
-  temperature: number;
-  description: string;
-  forecast: Array<{ date: string; temperature: number; description: string }>;
 
-  constructor(temperature: number, description: string, forecast: Array<{ date: string; temperature: number; description: string }>) {
-    this.temperature = temperature;
-    this.description = description;
-    this.forecast = forecast;
-  }
-}
+// Define a class for the Weather object
+  interface Weather {
+    city: string;
+    date: Dayjs | string;
+    tempF: number;
+    windSpeed: number;
+    humidity: number;
+    icon: string;
+    iconDescription: string;
+    }
+    interface WeatherService {
+        getWeatherForCity(city: string): Weather[]; //this is an async function
+    }
 
 // Complete the WeatherService class
 class WeatherService {
@@ -60,6 +62,7 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
   buildGeocodeQuery(city: string): string {
     return `${this.baseURL}/data/2.5/weather?q=${city}&appid=${this.API_Key}`;
   }
+
   
   // Create buildWeatherQuery method
   buildWeatherQuery(coordinates: Coordinates): string {
