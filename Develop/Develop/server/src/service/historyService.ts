@@ -11,12 +11,15 @@ class City {
   }
 }
 
+
+
+
 // Complete the HistoryService class
 class HistoryService {
   private filePath: string;
 
   constructor() {
-    this.filePath = path.join(__dirname, 'searchHistory.json');
+    this.filePath = path.join('searchHistory.json');
   }
 
   // Define a read method that reads from the searchHistory.json file

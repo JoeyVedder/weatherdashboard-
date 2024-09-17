@@ -25,11 +25,11 @@ class Weather {
 // Complete the WeatherService class
 class WeatherService {
   baseURL: string;
-  apiKey: string;
+  API_Key: string;
 
   constructor(apiKey: string) {
     this.baseURL = 'https://api.openweathermap.org';
-    this.apiKey = apiKey;
+    this.API_Key = apiKey;
   }
 
   
@@ -39,7 +39,7 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
       const response = await axios.get(`${this.baseURL}/data/2.5/weather`, {
         params: {
           q: query,
-          appid: this.apiKey,
+          appid: this.API_Key,
           units: 'metric' // for temperature in Celsius
         }
       });
@@ -55,16 +55,17 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
     const { lat, lon } = locationData.coord;
     return { lat, lon }; // returning an object that fits the Coordinates interface
   }
-
-  // Create buildWeatherQuery method
-  buildWeatherQuery(coordinates: Coordinates): string {
-    return `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}&units=metric`;
-  }
-
+  
   // Create buildGeocodeQuery method
   buildGeocodeQuery(city: string): string {
-    return `${this.baseURL}/data/2.5/weather?q=${city}&appid=${this.apiKey}`;
+    return `${this.baseURL}/data/2.5/weather?q=${city}&appid=${this.API_Key}`;
   }
+  
+  // Create buildWeatherQuery method
+  buildWeatherQuery(coordinates: Coordinates): string {
+    return `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.API_Key}&units=metric`;
+  }
+
 
   // Create fetchAndDestructureLocationData method
   async fetchAndDestructureLocationData(query: string): Promise<Coordinates> {
