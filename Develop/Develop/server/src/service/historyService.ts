@@ -11,9 +11,6 @@ class City {
   }
 }
 
-
-
-
 // Complete the HistoryService class
 class HistoryService {
   private filePath: string;

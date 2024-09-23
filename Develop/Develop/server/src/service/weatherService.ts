@@ -1,5 +1,5 @@
-import dotenv from 'dotenv'; 
-import axios from 'axios'; // Importing axios will help with HTTP
+import dotenv from 'dotenv';
+import { Dayjs } from 'dayjs';
 
 dotenv.config();
 
@@ -11,18 +11,15 @@ interface Coordinates {
 
 
 // Define a class for the Weather object
-  interface Weather {
-    city: string;
-    date: Dayjs | string;
-    tempF: number;
-    windSpeed: number;
-    humidity: number;
-    icon: string;
-    iconDescription: string;
-    }
-    interface WeatherService {
-        getWeatherForCity(city: string): Weather[]; //this is an async function
-    }
+interface Weather {
+  city: string;
+  date: Dayjs | string;
+  tempF: number;
+  windSpeed: number;
+  humidity: number;
+  icon: string;
+  iconDescription: string;
+}
 
 // Complete the WeatherService class
 class WeatherService {
@@ -34,18 +31,14 @@ class WeatherService {
     this.API_Key = apiKey;
   }
 
-  
+
   // Create fetchLocationData method
-async fetchLocationData(query: string): Promise<any> { // A Promise can resolve to any type of value
+  async fetchLocationData(query: string): Promise<any> {  // A Promise can resolve to any type of value
     try {
-      const response = await axios.get(`${this.baseURL}/data/2.5/weather`, {
-        params: {
-          q: query,
-          appid: this.API_Key,
-          units: 'metric' // for temperature in Celsius
-        }
-      });
-      return response.data;
+      console.log("this is a fetchLocationData query", query);
+      const response = await fetch(query);
+      console.log("This is a fetchLocationData response", response);
+      return response;
     } catch (error: any) {
       // Throws a new error with a custom message
       throw new Error('Error fetching location data: ' + error.message);
@@ -57,13 +50,13 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
     const { lat, lon } = locationData.coord;
     return { lat, lon }; // returning an object that fits the Coordinates interface
   }
-  
+
   // Create buildGeocodeQuery method
   buildGeocodeQuery(city: string): string {
     return `${this.baseURL}/data/2.5/weather?q=${city}&appid=${this.API_Key}`;
   }
 
-  
+
   // Create buildWeatherQuery method
   buildWeatherQuery(coordinates: Coordinates): string {
     return `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.API_Key}&units=metric`;
@@ -72,6 +65,7 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
 
   // Create fetchAndDestructureLocationData method
   async fetchAndDestructureLocationData(query: string): Promise<Coordinates> {
+    console.log("this is a fetchAndDestructureLocationData query", query);
     const locationData = await this.fetchLocationData(query);
     return this.destructureLocationData(locationData);
   }
@@ -80,8 +74,8 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
   async fetchWeatherData(coordinates: Coordinates): Promise<any> {
     const url = this.buildWeatherQuery(coordinates);
     try {
-      const response = await axios.get(url);
-      return response.data;
+      const response = await fetch(url);
+      return response;
     } catch (error: any) {
       throw new Error('Error fetching weather data: ' + error.message);
     }
@@ -89,14 +83,18 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
 
   // Build parseCurrentWeather method
   parseCurrentWeather(response: any): Weather {
-    const { main, weather } = response.list[0];
-    const temperature = main.temp;
-    const description = weather[0].description;
-    const forecast = this.buildForecastArray(response);
-    return new Weather(temperature, description, forecast);
+    return {
+      city: response.name, 
+      date: response.date,
+      tempF: response.main.tempF,
+      windSpeed: response.wind.speed,
+      humidity: response.main.humidity,
+      icon: response.weather[0].icon,
+      iconDescription: response.weather[0].iconDescription 
+    };
   }
 
-  // Complete buildForecastArray method
+   // Complete buildForecastArray method
   buildForecastArray(weatherData: any): Array<{ date: string; temperature: number; description: string }> {
     return weatherData.list.map((item: any) => ({
       date: item.dt_txt,
@@ -109,7 +107,9 @@ async fetchLocationData(query: string): Promise<any> { // A Promise can resolve 
   async getWeatherForCity(city: string): Promise<Weather> {
     try {
       const coordinates = await this.fetchAndDestructureLocationData(city);
+      console.log("Coordinates", coordinates);
       const weatherData = await this.fetchWeatherData(coordinates);
+      console.log("this is a full weatherData", weatherData);
       return this.parseCurrentWeather(weatherData);
     } catch (error: any) {
       throw new Error('Error getting weather for city: ' + error.message);
@@ -121,3 +121,4 @@ const apiKey = process.env.WEATHER_API_KEY as string; // Type assertion for envi
 const weatherService = new WeatherService(apiKey);
 
 export default weatherService;
+

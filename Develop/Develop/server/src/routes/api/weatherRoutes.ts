@@ -1,8 +1,13 @@
 import express, { Request, Response } from 'express';
-import HistoryService from '../../service/historyService.js'; 
-import WeatherService from '../../service/weatherService.js'; 
+import HistoryService from '../../service/historyService.js';
+import WeatherService from '../../service/weatherService.js';
 
 const router = express.Router();
+
+// Helper function to handle responses
+const sendResponse = (res: Response, statusCode: number, data: any) => {
+  return res.status(statusCode).json(data);
+};
 
 // Define a type for the request parameters for the DELETE route
 interface ParamsId {
@@ -14,29 +19,30 @@ router.post('/', async (req: Request, res: Response) => {
   const { city } = req.body as { city?: string }; // Extract 'city' from 'req.body' with optional string type
 
   if (!city) {
-    return res.status(400).json({ error: 'City name is required' });
+    return sendResponse(res, 400, { error: 'City name is required' });
   }
 
   try {
     // GET weather data from city name
     const weatherData = await WeatherService.getWeatherForCity(city);
+    console.log(weatherData);
     // Save city to search history
     await HistoryService.addCity(city);
-    return res.status(200).json(weatherData);
+    return sendResponse(res, 200, weatherData);
   } catch (error) {
     console.error('Error retrieving weather data:', error); // Log error details with custom message
-    return res.status(500).json({ error: 'An error occurred while retrieving weather data' });
+    return sendResponse(res, 500, { error: 'An error occurred while retrieving weather data' });
   }
 });
 
 // GET search history
-router.get('/history', async (res: Response) => {
+router.get('/history', async (_req: Request, res: Response) => { // FIX: Added 'req' parameter
   try {
     const history = await HistoryService.getCities();
-    return res.status(200).json(history);
+    return sendResponse(res, 200, history);
   } catch (error) {
-    console.error('Error retrieving search history:', error); 
-    return res.status(500).json({ error: 'An error occurred while retrieving search history' });
+    console.error('Error retrieving search history:', error);
+    return sendResponse(res, 500, { error: 'An error occurred while retrieving search history' });
   }
 });
 
@@ -46,10 +52,10 @@ router.delete('/history/:id', async (req: Request<ParamsId>, res: Response) => {
 
   try {
     await HistoryService.removeCity(id);
-    return res.status(200).json({ message: 'City has been removed from search history' });
+    return sendResponse(res, 200, { message: 'City has been removed from search history' });
   } catch (error) {
-    console.error('Error removing city from search history:', error); 
-    return res.status(500).json({ error: 'An error occurred while trying to remove city from search history' });
+    console.error('Error removing city from search history:', error);
+    return sendResponse(res, 500, { error: 'An error occurred while trying to remove city from search history' });
   }
 });
 
