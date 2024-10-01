@@ -16,18 +16,18 @@ interface ParamsId {
 
 // POST Request with city name to retrieve weather data
 router.post('/', async (req: Request, res: Response) => {
-  const { city } = req.body as { city?: string }; // Extract 'city' from 'req.body' with optional string type
-
-  if (!city) {
+  const { cityName } = req.body as { cityName?: string }; // Extract 'city' from 'req.body' with optional string type
+console.log('City', cityName);
+  if (!cityName) {
     return sendResponse(res, 400, { error: 'City name is required' });
   }
 
   try {
     // GET weather data from city name
-    const weatherData = await WeatherService.getWeatherForCity(city);
+    const weatherData = await WeatherService.getWeatherForCity(cityName);
     console.log(weatherData);
     // Save city to search history
-    await HistoryService.addCity(city);
+    await HistoryService.addCity(cityName);
     return sendResponse(res, 200, weatherData);
   } catch (error) {
     console.error('Error retrieving weather data:', error); // Log error details with custom message

@@ -9,7 +9,7 @@ interface Coordinates {
 }
 
 interface Weather {
-  city: string;
+  cityName: string;
   date: Dayjs | string;
   temp: number;
   windSpeed: number;
@@ -20,11 +20,11 @@ interface Weather {
 
 class WeatherService {
   baseURL: string;
-  API_Key: string;
+  API_Key?: string;
 
-  constructor(apiKey: string) {
+  constructor() {
     this.baseURL = 'https://api.openweathermap.org';
-    this.API_Key = apiKey;
+    this.API_Key = process.env.API_KEY || '';
   }
 
   async fetchLocationData(query: string): Promise<any> {
@@ -46,8 +46,8 @@ class WeatherService {
     return { lat, lon };
   }
 
-  buildGeocodeQuery(city: string): string {
-    return `${this.baseURL}/data/2.5/weather?q=${city}&appid=${this.API_Key}`;
+  buildGeocodeQuery(cityName: string): string {
+    return `${this.baseURL}/data/2.5/weather?q=${cityName}&appid=${this.API_Key}`;
   }
 
   async fetchWeatherData(coordinates: Coordinates): Promise<any> {
@@ -70,7 +70,7 @@ class WeatherService {
 
   parseCurrentWeather(response: any): Weather {
     return {
-      city: response.city.name,
+      cityName: response.city.name,
       date: response.list[0].dt_txt, // Getting the date from the first forecast
       temp: response.list[0].main.temp,
       windSpeed: response.list[0].wind.speed,
@@ -80,9 +80,9 @@ class WeatherService {
     };
   }
 
-  async getWeatherForCity(city: string): Promise<Weather> {
+  async getWeatherForCity(cityName: string): Promise<Weather> {
     try {
-      const geocodeQuery = this.buildGeocodeQuery(city);
+      const geocodeQuery = this.buildGeocodeQuery(cityName);
       const coordinates = await this.fetchAndDestructureLocationData(geocodeQuery);
       const weatherData = await this.fetchWeatherData(coordinates);
       console.log("Weather Data:", weatherData);
@@ -99,7 +99,6 @@ class WeatherService {
   }
 }
 
-const apiKey = process.env.WEATHER_API_KEY as string;
-const weatherService = new WeatherService(apiKey);
+const weatherService = new WeatherService();
 
 export default weatherService;
