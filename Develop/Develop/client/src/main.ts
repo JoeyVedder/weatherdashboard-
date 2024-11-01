@@ -43,12 +43,8 @@ const fetchWeather = async (cityName: string) => {
     body: JSON.stringify({ cityName }),
   });
 
-  // Check if the response is OK
-  if (!response.ok) {
-    throw new Error('Failed to fetch weather data');
-  }
-
   const weatherData = await response.json();
+
   console.log('weatherData: ', weatherData);
 
   renderCurrentWeather(weatherData[0]);
@@ -81,10 +77,10 @@ Render Functions
 */
 
 const renderCurrentWeather = (currentWeather: any): void => {
-  console.log(currentWeather);
   const { city, date, icon, iconDescription, tempF, windSpeed, humidity } =
     currentWeather;
 
+  // convert the following to typescript
   heading.textContent = `${city} (${date})`;
   weatherIcon.setAttribute(
     'src',
@@ -92,17 +88,15 @@ const renderCurrentWeather = (currentWeather: any): void => {
   );
   weatherIcon.setAttribute('alt', iconDescription);
   weatherIcon.setAttribute('class', 'weather-img');
-  
-  // Clear existing content in todayContainer before appending new data
+  heading.append(weatherIcon);
+  tempEl.textContent = `Temp: ${tempF}°F`;
+  windEl.textContent = `Wind: ${windSpeed} MPH`;
+  humidityEl.textContent = `Humidity: ${humidity} %`;
+
   if (todayContainer) {
     todayContainer.innerHTML = '';
     todayContainer.append(heading, tempEl, windEl, humidityEl);
   }
-  
-  // Update temperature, wind, and humidity elements
-  tempEl.textContent = `Temp: ${tempF}°F`;
-  windEl.textContent = `Wind: ${windSpeed} MPH`;
-  humidityEl.textContent = `Humidity: ${humidity} %`;
 };
 
 const renderForecast = (forecast: any): void => {
@@ -255,12 +249,11 @@ Event Handlers
 
 */
 
-const handleSearchFormSubmit = (event: Event): void => {
+const handleSearchFormSubmit = (event: any): void => {
   event.preventDefault();
 
   if (!searchInput.value) {
-    alert('City cannot be blank'); // Use alert instead of throwing an error
-    return; // Return early if the input is blank
+    throw new Error('City cannot be blank');
   }
 
   const search: string = searchInput.value.trim();
